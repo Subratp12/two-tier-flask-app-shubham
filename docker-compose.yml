@@ -13,6 +13,11 @@ services:
       - ./message.sql:/docker-entrypoint-initdb.d/message.sql
     networks:
       - twotier
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   
   flaskapp:
     build: .
@@ -22,7 +27,8 @@ services:
     env_file:
       - .env
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     networks:
       - twotier
     
